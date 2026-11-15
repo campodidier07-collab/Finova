@@ -1,0 +1,166 @@
+from datetime import datetime
+from decimal import Decimal
+
+from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
+
+from apps.accounts.models import Account
+from apps.categories.models import Category
+
+from .models import Movement
+
+
+class LedgerError(Exception):
+    """Base domain error for ledger operations."""
+
+
+class InsufficientFundsError(LedgerError):
+    """Raised when an expense exceeds available balance and overdraft is disabled."""
+
+
+@transaction.atomic
+def create_account_with_initial_balance(
+    *,
+    user,
+    name: str = "Cuenta Principal",
+    currency: str = "COP",
+    initial_balance: Decimal = Decimal("0.00"),
+    allow_overdraft: bool = False,
+) -> Account:
+    """Create an account and record its initial balance in the audit ledger."""
+    if initial_balance < Decimal("0.00"):
+        raise LedgerError("Initial balance cannot be negative.")
+
+    account = Account.objects.create(
+        user=user,
+        name=name,
+        currency=currency.upper(),
+        initial_balance=initial_balance,
+        balance=initial_balance,
+        allow_overdraft=allow_overdraft,
+    )
+
+    if initial_balance > Decimal("0.00"):
+        Movement.objects.create(
+            account=account,
+            category=None,
+            type=Movement.MovementType.INITIAL,
+            amount=initial_balance,
+            balance_before=Decimal("0.00"),
+            balance_after=initial_balance,
+            description=f"Saldo inicial de {account.name}",
+            occurred_at=timezone.now(),
+        )
+
+    return account
+
+
+@transaction.atomic
+def record_movement(
+    *,
+    user,
+    account_id: int,
+    movement_type: str,
+    amount: Decimal,
+    description: str,
+    category_id: int | None = None,
+    occurred_at: datetime | None = None,
+) -> Movement:
+    """Atomically record an income or expense and update the account balance."""
+    if amount <= Decimal("0.00"):
+        raise LedgerError("Movement amount must be greater than zero.")
+
+    if movement_type not in (Movement.MovementType.INCOME, Movement.MovementType.EXPENSE):
+        raise LedgerError("Only INCOME and EXPENSE movements can be recorded directly.")
+
+    account = Account.objects.select_for_update().filter(id=account_id, user=user).first()
+    if account is None:
+        raise LedgerError("Account not found.")
+
+    category = None
+    if category_id is not None:
+        category = Category.objects.filter(
+            Q(id=category_id) & (Q(user=user) | Q(user__isnull=True, is_default=True))
+        ).first()
+        if category is None:
+            raise LedgerError("Category not found.")
+        if category.type != movement_type:
+            raise LedgerError("Category type does not match movement type.")
+
+    balance_before = account.balance
+    if movement_type == Movement.MovementType.INCOME:
+        balance_after = balance_before + amount
+    else:
+        balance_after = balance_before - amount
+        if balance_after < Decimal("0.00") and not account.allow_overdraft:
+            raise InsufficientFundsError(
+                f"Saldo insuficiente. Disponible: {balance_before} {account.currency}."
+            )
+
+    movement = Movement.objects.create(
+        account=account,
+        category=category,
+        type=movement_type,
+        amount=amount,
+        balance_before=balance_before,
+        balance_after=balance_after,
+        description=description.strip(),
+        occurred_at=occurred_at or timezone.now(),
+    )
+
+    account.balance = balance_after
+    account.save(update_fields=["balance"])
+    return movement
+
+
+@transaction.atomic
+def reverse_movement(*, user, movement_id: int, reason: str = "") -> Movement:
+    """Create a compensating adjustment entry to reverse a prior movement."""
+    original = (
+        Movement.objects.select_related("account")
+        .filter(id=movement_id, account__user=user)
+        .first()
+    )
+    if original is None:
+        raise LedgerError("Movement not found.")
+
+    if original.type in (Movement.MovementType.INITIAL, Movement.MovementType.ADJUSTMENT):
+        raise LedgerError("Initial or adjustment movements cannot be reversed.")
+
+    if hasattr(original, "reversal"):
+        raise LedgerError("This movement has already been reversed.")
+
+    account = Account.objects.select_for_update().get(id=original.account_id)
+    balance_before = account.balance
+
+    if original.type == Movement.MovementType.INCOME:
+        delta = -original.amount
+        balance_after = balance_before + delta
+        if balance_after < Decimal("0.00") and not account.allow_overdraft:
+            raise InsufficientFundsError(
+                "No se puede revertir este ingreso porque dejaría la cuenta en saldo negativo."
+            )
+    else:
+        delta = original.amount
+        balance_after = balance_before + delta
+
+    desc = f"Reversión de #{original.id}: {original.description}"
+    if reason.strip():
+        desc = f"{desc} ({reason.strip()})"
+
+    reversal = Movement.objects.create(
+        account=account,
+        category=original.category,
+        type=Movement.MovementType.ADJUSTMENT,
+        amount=delta,
+        balance_before=balance_before,
+        balance_after=balance_after,
+        description=desc[:255],
+        occurred_at=timezone.now(),
+        reversed_movement=original,
+    )
+
+    account.balance = balance_after
+    account.save(update_fields=["balance"])
+    return reversal
