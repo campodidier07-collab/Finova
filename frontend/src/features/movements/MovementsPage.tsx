@@ -28,12 +28,14 @@ export function MovementsPage() {
   const [occurredAt, setOccurredAt] = useState(() => new Date().toISOString().slice(0, 16))
   const [formError, setFormError] = useState<string | null>(null)
 
-  // Filter state
+  // Filter & pagination state
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(1)
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null)
 
   const { data: accountsData } = useQuery({
     queryKey: ['accounts'],
@@ -51,13 +53,20 @@ export function MovementsPage() {
     },
   })
 
-  const primaryAccount = accountsData?.results?.[0]
+  const accounts = accountsData?.results || []
+  const primaryAccount =
+    accounts.find((a) => a.id === selectedAccountId) || accounts[0]
   const filteredCategories = (categoriesData?.results || []).filter((c) => c.type === type)
 
   const { data: movementsData, isLoading } = useQuery({
-    queryKey: ['movements', { search, filterType, filterCategory, dateFrom, dateTo }],
+    queryKey: [
+      'movements',
+      { search, filterType, filterCategory, dateFrom, dateTo, page, accountId: primaryAccount?.id },
+    ],
     queryFn: async () => {
       const params = new URLSearchParams()
+      params.set('page', String(page))
+      if (primaryAccount && accounts.length > 1) params.set('account', String(primaryAccount.id))
       if (search.trim()) params.set('search', search.trim())
       if (filterType) params.set('type', filterType)
       if (filterCategory) params.set('category', filterCategory)
@@ -132,12 +141,32 @@ export function MovementsPage() {
       {/* Create Movement Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Nuevo movimiento</CardTitle>
-          <CardDescription>
-            {primaryAccount
-              ? `Cuenta: ${primaryAccount.name} · Saldo actual: ${formatCurrency(primaryAccount.balance, primaryAccount.currency)}`
-              : 'Cargando cuenta...'}
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <CardTitle>Nuevo movimiento</CardTitle>
+              <CardDescription>
+                {primaryAccount
+                  ? `Cuenta: ${primaryAccount.name} · Saldo actual: ${formatCurrency(primaryAccount.balance, primaryAccount.currency)}`
+                  : 'Cargando cuenta...'}
+              </CardDescription>
+            </div>
+            {accounts.length > 1 && (
+              <select
+                value={primaryAccount?.id || ''}
+                onChange={(e) => {
+                  setSelectedAccountId(Number(e.target.value))
+                  setPage(1)
+                }}
+                className="flex h-9 rounded-md border border-input bg-card px-3 py-1 text-sm"
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id}>
+                    {acc.name} ({acc.currency})
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end">
@@ -378,6 +407,31 @@ export function MovementsPage() {
               </tbody>
             </table>
           </div>
+
+          {movementsData && movementsData.count > 0 && (
+            <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
+              <span>Total de registros: {movementsData.count}</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!movementsData.previous}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Anterior
+                </Button>
+                <span>Página {page}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!movementsData.next}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Siguiente
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

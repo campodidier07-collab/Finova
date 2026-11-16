@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, History, LayoutDashboard, LogOut, Wallet } from 'lucide-react'
+import { BarChart3, History, LayoutDashboard, LogOut, Settings, Wallet } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { OnboardingAccountModal } from '@/features/accounts/OnboardingAccountModal'
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/movements', label: 'Movimientos y Auditoría', icon: History, end: false },
   { to: '/reports', label: 'Reportes', icon: BarChart3, end: false },
+  { to: '/settings', label: 'Cuentas y Categorías', icon: Settings, end: false },
 ]
 
 export function AppLayout() {
