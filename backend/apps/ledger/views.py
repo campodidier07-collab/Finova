@@ -84,3 +84,16 @@ class MovementViewSet(
         )
         response["Content-Disposition"] = 'attachment; filename="finova-auditoria.xlsx"'
         return response
+
+    @action(detail=True, methods=["post"], url_path="attach-receipt")
+    def attach_receipt(self, request, pk=None):
+        movement = self.get_object()
+        receipt_file = request.FILES.get("receipt")
+        if not receipt_file:
+            return Response(
+                {"detail": "Debes adjuntar una imagen o archivo de comprobante."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        movement.receipt = receipt_file
+        movement.save(update_fields=["receipt"])
+        return Response(self.get_serializer(movement).data, status=status.HTTP_200_OK)

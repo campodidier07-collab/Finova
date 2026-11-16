@@ -13,6 +13,7 @@ const financeNavItems = [
   { to: '/transfers', label: 'Transferencias', icon: 'fa-solid fa-right-left', end: false },
   { to: '/subscriptions', label: 'Suscripciones', icon: 'fa-solid fa-repeat', end: false },
   { to: '/debts', label: 'Deudas', icon: 'fa-solid fa-credit-card', end: false },
+  { to: '/receipts', label: 'Comprobantes', icon: 'fa-solid fa-receipt', end: false },
   { to: '/reports', label: 'Reportes', icon: 'fa-solid fa-chart-pie', end: false },
 ]
 

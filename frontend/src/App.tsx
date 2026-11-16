@@ -10,6 +10,7 @@ import { MovementsPage } from '@/features/movements/MovementsPage'
 import { TransfersPage } from '@/features/transfers/TransfersPage'
 import { SubscriptionsPage } from '@/features/subscriptions/SubscriptionsPage'
 import { DebtsPage } from '@/features/debts/DebtsPage'
+import { ReceiptsPage } from '@/features/receipts/ReceiptsPage'
 import { ReportsPage } from '@/features/reports/ReportsPage'
 import { NotificationsPage } from '@/features/system/NotificationsPage'
 import { SecurityPage } from '@/features/system/SecurityPage'
@@ -60,6 +61,7 @@ export function App() {
               <Route path="transfers" element={<TransfersPage />} />
               <Route path="subscriptions" element={<SubscriptionsPage />} />
               <Route path="debts" element={<DebtsPage />} />
+              <Route path="receipts" element={<ReceiptsPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="security" element={<SecurityPage />} />

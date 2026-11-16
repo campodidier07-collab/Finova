@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CameraCaptureModal } from '@/features/receipts/CameraCaptureModal'
+import { ReceiptPreviewModal } from '@/features/receipts/ReceiptPreviewModal'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
 import type { Account, Category, Movement, MovementType, PaginatedResponse } from '@/types/api'
 
@@ -28,6 +30,8 @@ export function MovementsPage() {
   const [description, setDescription] = useState('')
   const [occurredAt, setOccurredAt] = useState(() => new Date().toISOString().slice(0, 16))
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [previewMovement, setPreviewMovement] = useState<Movement | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
   // Filter & pagination state
@@ -140,6 +144,13 @@ export function MovementsPage() {
 
   return (
     <div className="space-y-6">
+      <CameraCaptureModal
+        open={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCapture={(captured) => setReceiptFile(captured)}
+      />
+      <ReceiptPreviewModal movement={previewMovement} onClose={() => setPreviewMovement(null)} />
+
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Movimientos y Auditoría</h1>
         <p className="text-sm text-muted-foreground">
@@ -262,12 +273,29 @@ export function MovementsPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="mov-receipt">Comprobante (opcional)</Label>
-              <Input
-                id="mov-receipt"
-                type="file"
-                accept="image/*,.pdf"
-                onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-              />
+              <div className="flex gap-1.5">
+                <Input
+                  id="mov-receipt"
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  title="Tomar foto con cámara"
+                  onClick={() => setCameraOpen(true)}
+                >
+                  <i className="fa-solid fa-camera text-sm" />
+                </Button>
+              </div>
+              {receiptFile && (
+                <p className="text-xs text-emerald-600 truncate">
+                  <i className="fa-solid fa-check mr-1" />
+                  {receiptFile.name}
+                </p>
+              )}
             </div>
 
             <Button type="submit" disabled={createMutation.isPending || !primaryAccount}>
@@ -438,15 +466,16 @@ export function MovementsPage() {
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-1">
                             {m.receipt && (
-                              <a
-                                href={m.receipt}
-                                target="_blank"
-                                rel="noreferrer"
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
                                 title="Ver comprobante adjunto"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent text-primary"
+                                onClick={() => setPreviewMovement(m)}
+                                className="text-primary"
                               >
                                 <i className="fa-solid fa-paperclip text-xs" />
-                              </a>
+                              </Button>
                             )}
                             {canReverse ? (
                               <Button

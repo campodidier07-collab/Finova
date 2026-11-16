@@ -112,6 +112,30 @@ class TestNewModulesAPI:
         assert mov.status_code == status.HTTP_201_CREATED
         assert mov.data["receipt"] is not None
 
+        # Filter has_receipt=true and test attach-receipt on a second movement
+        filtered = client.get("/api/movements/?has_receipt=true")
+        assert filtered.status_code == status.HTTP_200_OK
+        assert filtered.data["count"] == 1
+
+        mov2 = client.post(
+            "/api/movements/",
+            {
+                "account": account_id,
+                "type": "EXPENSE",
+                "amount": "5000.00",
+                "description": "Sin factura inicial",
+            },
+            format="json",
+        )
+        assert mov2.status_code == status.HTTP_201_CREATED
+        attach = client.post(
+            f"/api/movements/{mov2.data['id']}/attach-receipt/",
+            {"receipt": SimpleUploadedFile("ticket.jpg", b"JPGDATA", content_type="image/jpeg")},
+            format="multipart",
+        )
+        assert attach.status_code == status.HTTP_200_OK
+        assert attach.data["receipt"] is not None
+
         pwd = client.post(
             "/api/auth/change-password/",
             {
