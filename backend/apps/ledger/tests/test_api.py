@@ -1,5 +1,8 @@
+from io import BytesIO
+
 import pytest
 from django.core.management import call_command
+from openpyxl import load_workbook
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -94,3 +97,16 @@ class TestFinovaAPIFlow:
         assert rep.data["total_income"] == "50000.00"
         assert rep.data["total_expense"] == "20000.00"
         assert rep.data["net_balance"] == "30000.00"
+
+        # 8. Excel (.xlsx) exports with Finova icon and formatted sheets
+        rep_xlsx = client.get("/api/reports/export-xlsx/?period_type=MONTHLY")
+        assert rep_xlsx.status_code == status.HTTP_200_OK
+        wb_rep = load_workbook(BytesIO(rep_xlsx.content))
+        assert wb_rep.sheetnames == ["Resumen Ejecutivo", "Detalle Movimientos"]
+        assert len(wb_rep["Resumen Ejecutivo"]._images) == 1
+
+        audit_xlsx = client.get("/api/movements/export-xlsx/")
+        assert audit_xlsx.status_code == status.HTTP_200_OK
+        wb_aud = load_workbook(BytesIO(audit_xlsx.content))
+        assert wb_aud.sheetnames == ["Auditoría de Movimientos"]
+        assert len(wb_aud["Auditoría de Movimientos"]._images) == 1

@@ -274,43 +274,30 @@ export function MovementsPage() {
             variant="outline"
             size="sm"
             disabled={!movementsData?.results?.length}
-            onClick={() => {
-              if (!movementsData?.results?.length) return
-              const header = [
-                'Fecha',
-                'Hora',
-                'Tipo',
-                'Categoria',
-                'Descripcion',
-                'Valor',
-                'Saldo Antes',
-                'Saldo Despues',
-              ]
-              const rows = movementsData.results.map((m) => {
-                const dt = formatDateTime(m.occurred_at)
-                return [
-                  dt.date,
-                  dt.time,
-                  TYPE_LABELS[m.type].label,
-                  m.category_name || '',
-                  `"${m.description.replace(/"/g, '""')}"`,
-                  m.amount,
-                  m.balance_before,
-                  m.balance_after,
-                ]
-              })
-              const csv = [header, ...rows].map((r) => r.join(',')).join('\n')
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-              const url = URL.createObjectURL(blob)
+            onClick={async () => {
+              const params = new URLSearchParams()
+              if (primaryAccount && accounts.length > 1) {
+                params.set('account', String(primaryAccount.id))
+              }
+              if (search.trim()) params.set('search', search.trim())
+              if (filterType) params.set('type', filterType)
+              if (filterCategory) params.set('category', filterCategory)
+              if (dateFrom) params.set('date_from', `${dateFrom}T00:00:00`)
+              if (dateTo) params.set('date_to', `${dateTo}T23:59:59`)
+              const { data } = await apiClient.get<Blob>(
+                `/movements/export-xlsx/?${params.toString()}`,
+                { responseType: 'blob' }
+              )
+              const url = URL.createObjectURL(data)
               const link = document.createElement('a')
               link.href = url
-              link.download = `finova-auditoria-pag-${page}.csv`
+              link.download = 'finova-auditoria.xlsx'
               link.click()
               URL.revokeObjectURL(url)
             }}
           >
             <Download className="h-4 w-4" />
-            Exportar CSV
+            Exportar Excel (.xlsx)
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -1,6 +1,9 @@
+from django.http import HttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from apps.reports.excel import build_audit_xlsx
 
 from .filters import MovementFilter
 from .models import Movement
@@ -68,3 +71,14 @@ class MovementViewSet(
             },
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=False, methods=["get"], url_path="export-xlsx")
+    def export_xlsx(self, request):
+        queryset = self.filter_queryset(self.get_queryset())[:2000]
+        xlsx_bytes = build_audit_xlsx(user=request.user, movements=queryset)
+        response = HttpResponse(
+            xlsx_bytes,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = 'attachment; filename="finova-auditoria.xlsx"'
+        return response

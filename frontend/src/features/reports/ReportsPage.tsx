@@ -24,27 +24,25 @@ export function ReportsPage() {
     },
   })
 
-  const exportCsv = () => {
+  const [exporting, setExporting] = useState(false)
+
+  const exportExcel = async () => {
     if (!report) return
-    const rows = [
-      ['Periodo', `${report.period_start} a ${report.period_end}`],
-      ['Total Ingresado', report.total_income],
-      ['Total Gastado', report.total_expense],
-      ['Balance Neto', report.net_balance],
-      ['Tasa de Ahorro (%)', report.savings_rate_pct],
-      ['Numero de Movimientos', String(report.movement_count)],
-      [],
-      ['Categoria', 'Total Gastado', 'Movimientos'],
-      ...report.top_expense_categories.map((c) => [c.category_name, c.total, String(c.count)]),
-    ]
-    const csv = rows.map((r) => r.join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `finova-reporte-${periodType.toLowerCase()}-${report.period_start}.csv`
-    link.click()
-    URL.revokeObjectURL(url)
+    setExporting(true)
+    try {
+      const { data } = await apiClient.get<Blob>(
+        `/reports/export-xlsx/?period_type=${periodType}`,
+        { responseType: 'blob' }
+      )
+      const url = URL.createObjectURL(data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `finova-reporte-${periodType.toLowerCase()}-${report.period_start}.xlsx`
+      link.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setExporting(false)
+    }
   }
 
   const pieData = (report?.top_expense_categories || []).map((c) => ({
@@ -77,9 +75,9 @@ export function ReportsPage() {
           >
             Mensual
           </Button>
-          <Button variant="outline" size="sm" onClick={exportCsv} disabled={!report}>
+          <Button variant="outline" size="sm" onClick={exportExcel} disabled={!report || exporting}>
             <Download className="h-4 w-4" />
-            Exportar CSV
+            {exporting ? 'Generando...' : 'Exportar Excel (.xlsx)'}
           </Button>
         </div>
       </div>
