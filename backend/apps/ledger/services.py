@@ -66,6 +66,7 @@ def record_movement(
     description: str,
     category_id: int | None = None,
     occurred_at: datetime | None = None,
+    receipt=None,
 ) -> Movement:
     """Atomically record an income or expense and update the account balance."""
     if amount <= Decimal("0.00"):
@@ -106,6 +107,7 @@ def record_movement(
         balance_before=balance_before,
         balance_after=balance_after,
         description=description.strip(),
+        receipt=receipt,
         occurred_at=occurred_at or timezone.now(),
     )
 

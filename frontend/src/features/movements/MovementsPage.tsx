@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, RotateCcw, Search } from 'lucide-react'
+import { Download, Paperclip, RotateCcw, Search } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,7 @@ export function MovementsPage() {
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
   const [occurredAt, setOccurredAt] = useState(() => new Date().toISOString().slice(0, 16))
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
   // Filter & pagination state
@@ -84,22 +85,29 @@ export function MovementsPage() {
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!primaryAccount) throw new Error('No hay cuenta configurada')
-      const { data } = await apiClient.post<Movement>('/movements/', {
-        account: primaryAccount.id,
-        category: categoryId ? Number(categoryId) : null,
-        type,
-        amount: Number(amount).toFixed(2),
-        description,
-        occurred_at: new Date(occurredAt).toISOString(),
+      const formData = new FormData()
+      formData.append('account', String(primaryAccount.id))
+      if (categoryId) formData.append('category', categoryId)
+      formData.append('type', type)
+      formData.append('amount', Number(amount).toFixed(2))
+      formData.append('description', description)
+      formData.append('occurred_at', new Date(occurredAt).toISOString())
+      if (receiptFile) {
+        formData.append('receipt', receiptFile)
+      }
+      const { data } = await apiClient.post<Movement>('/movements/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
       return data
     },
     onSuccess: () => {
       setAmount('')
       setDescription('')
+      setReceiptFile(null)
       setFormError(null)
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      void queryClient.invalidateQueries({ queryKey: ['balance-trend'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       void queryClient.invalidateQueries({ queryKey: ['reports'] })
     },
@@ -242,7 +250,7 @@ export function MovementsPage() {
               />
             </div>
 
-            <div className="space-y-1.5 sm:col-span-2 lg:col-span-4">
+            <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
               <Label htmlFor="mov-desc">Descripción / Razón</Label>
               <Input
                 id="mov-desc"
@@ -250,6 +258,16 @@ export function MovementsPage() {
                 placeholder={type === 'INCOME' ? 'Ej. Pago nómina quincenal' : 'Ej. Compra supermercado'}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="mov-receipt">Comprobante (opcional)</Label>
+              <Input
+                id="mov-receipt"
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
               />
             </div>
 
@@ -419,21 +437,34 @@ export function MovementsPage() {
                           {formatCurrency(m.balance_after, m.account_currency)}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          {canReverse ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              title="Crear movimiento de reversión"
-                              onClick={() => reverseMutation.mutate(m.id)}
-                              disabled={reverseMutation.isPending}
-                            >
-                              <RotateCcw className="h-3.5 w-3.5" />
-                            </Button>
-                          ) : m.is_reversed ? (
-                            <span className="text-xs text-muted-foreground">Revertido</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
+                          <div className="flex items-center justify-center gap-1">
+                            {m.receipt && (
+                              <a
+                                href={m.receipt}
+                                target="_blank"
+                                rel="noreferrer"
+                                title="Ver comprobante adjunto"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent text-primary"
+                              >
+                                <Paperclip className="h-3.5 w-3.5" />
+                              </a>
+                            )}
+                            {canReverse ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="Crear movimiento de reversión"
+                                onClick={() => reverseMutation.mutate(m.id)}
+                                disabled={reverseMutation.isPending}
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" />
+                              </Button>
+                            ) : m.is_reversed ? (
+                              <span className="text-xs text-muted-foreground">Revertido</span>
+                            ) : !m.receipt ? (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            ) : null}
+                          </div>
                         </td>
                       </tr>
                     )

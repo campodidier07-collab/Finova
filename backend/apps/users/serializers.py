@@ -23,3 +23,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ("id", "email", "full_name", "timezone", "default_currency", "date_joined")
         read_only_fields = ("id", "email", "date_joined")
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    def validate_current_password(self, value: str) -> str:
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("La contraseña actual es incorrecta.")
+        return value

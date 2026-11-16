@@ -1,7 +1,9 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import RegisterSerializer, UserProfileSerializer
+from .serializers import ChangePasswordSerializer, RegisterSerializer, UserProfileSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -14,6 +16,15 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ChangePasswordView(APIView):
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        request.user.set_password(serializer.validated_data["new_password"])
+        request.user.save(update_fields=["password"])
+        return Response({"detail": "Contraseña actualizada correctamente."}, status=status.HTTP_200_OK)
 
 
 class LoginView(TokenObtainPairView):

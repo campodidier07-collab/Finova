@@ -7,7 +7,12 @@ import { RegisterPage } from '@/features/auth/RegisterPage'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { MovementsPage } from '@/features/movements/MovementsPage'
+import { TransfersPage } from '@/features/transfers/TransfersPage'
+import { SubscriptionsPage } from '@/features/subscriptions/SubscriptionsPage'
+import { DebtsPage } from '@/features/debts/DebtsPage'
 import { ReportsPage } from '@/features/reports/ReportsPage'
+import { NotificationsPage } from '@/features/system/NotificationsPage'
+import { SecurityPage } from '@/features/system/SecurityPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 
 const queryClient = new QueryClient({
@@ -52,7 +57,12 @@ export function App() {
             >
               <Route index element={<DashboardPage />} />
               <Route path="movements" element={<MovementsPage />} />
+              <Route path="transfers" element={<TransfersPage />} />
+              <Route path="subscriptions" element={<SubscriptionsPage />} />
+              <Route path="debts" element={<DebtsPage />} />
               <Route path="reports" element={<ReportsPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="security" element={<SecurityPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>

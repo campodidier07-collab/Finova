@@ -28,6 +28,7 @@ class MovementSerializer(serializers.ModelSerializer):
             "balance_before",
             "balance_after",
             "description",
+            "receipt",
             "occurred_at",
             "recorded_at",
             "reversed_movement",
@@ -67,6 +68,7 @@ class MovementSerializer(serializers.ModelSerializer):
                 description=validated_data["description"],
                 category_id=category.id if category else None,
                 occurred_at=validated_data.get("occurred_at"),
+                receipt=validated_data.get("receipt"),
             )
         except LedgerError as exc:
             raise serializers.ValidationError({"detail": str(exc)}) from exc

@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.reports.excel import build_audit_xlsx
@@ -20,6 +21,7 @@ class MovementViewSet(
     """Append-only ledger endpoints: list, retrieve, create, and reverse."""
 
     serializer_class = MovementSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     filterset_class = MovementFilter
     search_fields = ("description", "category__name")
     ordering_fields = ("occurred_at", "recorded_at", "amount")
