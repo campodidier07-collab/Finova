@@ -7,7 +7,12 @@ from apps.categories.models import Category
 from apps.ledger.models import Movement
 from apps.ledger.services import create_account_with_initial_balance, record_movement
 from apps.reports.models import ReportSnapshot
-from apps.reports.services import compute_period_report, get_dashboard_summary, get_period_bounds
+from apps.reports.services import (
+    compute_period_report,
+    get_balance_trend,
+    get_dashboard_summary,
+    get_period_bounds,
+)
 from apps.reports.tasks import generate_periodic_reports
 
 User = get_user_model()
@@ -85,3 +90,17 @@ class TestReportsService:
         assert count1 == 1
         assert count2 == 1
         assert ReportSnapshot.objects.filter(user=self.user, period_type="WEEKLY").count() == 1
+
+    def test_get_balance_trend_returns_daily_series(self):
+        record_movement(
+            user=self.user,
+            account_id=self.account.id,
+            movement_type=Movement.MovementType.INCOME,
+            amount=Decimal("500.00"),
+            description="Ingreso",
+            category_id=self.cat_salary.id,
+        )
+        series = get_balance_trend(user=self.user, days=7)
+        assert len(series) == 7
+        assert Decimal(series[-1]["balance"]) == Decimal("1500.00")
+        assert Decimal(series[-1]["income"]) == Decimal("500.00")

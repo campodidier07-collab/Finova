@@ -131,3 +131,65 @@ def get_dashboard_summary(*, user, account_id: int | None = None) -> dict:
         "currency": getattr(user, "default_currency", "COP"),
         "summaries": summaries,
     }
+
+
+def get_balance_trend(*, user, days: int = 14, account_id: int | None = None) -> list[dict]:
+    """Return daily balance, income, and expense series for the last N days."""
+    tz_name = getattr(user, "timezone", "America/Bogota") or "America/Bogota"
+    tz = ZoneInfo(tz_name)
+    today = timezone.now().astimezone(tz).date()
+    start_date = today - timedelta(days=max(days - 1, 0))
+
+    accounts_qs = Account.objects.filter(user=user)
+    if account_id is not None:
+        accounts_qs = accounts_qs.filter(id=account_id)
+    current_balance = (
+        accounts_qs.aggregate(total=Sum("balance"))["total"] or Decimal("0.00")
+    ).quantize(Decimal("0.01"))
+
+    start_dt = datetime.combine(start_date, time.min, tzinfo=tz)
+    movements = (
+        Movement.objects.filter(account__user=user, occurred_at__gte=start_dt)
+        .order_by("occurred_at", "id")
+    )
+    if account_id is not None:
+        movements = movements.filter(account_id=account_id)
+
+    daily_income: dict[date, Decimal] = {}
+    daily_expense: dict[date, Decimal] = {}
+    daily_net_delta: dict[date, Decimal] = {}
+
+    for m in movements:
+        d = m.occurred_at.astimezone(tz).date()
+        if m.type == Movement.MovementType.INCOME:
+            daily_income[d] = daily_income.get(d, Decimal("0.00")) + m.amount
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) + m.amount
+        elif m.type == Movement.MovementType.EXPENSE:
+            daily_expense[d] = daily_expense.get(d, Decimal("0.00")) + m.amount
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) - m.amount
+        elif m.type == Movement.MovementType.INITIAL:
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) + m.amount
+        elif m.type == Movement.MovementType.ADJUSTMENT:
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) + m.amount
+        elif m.type == Movement.MovementType.TRANSFER_IN and account_id is not None:
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) + m.amount
+        elif m.type == Movement.MovementType.TRANSFER_OUT and account_id is not None:
+            daily_net_delta[d] = daily_net_delta.get(d, Decimal("0.00")) - m.amount
+
+    # Walk backwards from current_balance to compute end-of-day balance per day
+    dates = [start_date + timedelta(days=i) for i in range((today - start_date).days + 1)]
+    balances_by_day: dict[date, Decimal] = {}
+    running = current_balance
+    for d in reversed(dates):
+        balances_by_day[d] = running
+        running = (running - daily_net_delta.get(d, Decimal("0.00"))).quantize(Decimal("0.01"))
+
+    return [
+        {
+            "date": d.isoformat(),
+            "balance": str(balances_by_day[d].quantize(Decimal("0.01"))),
+            "income": str(daily_income.get(d, Decimal("0.00")).quantize(Decimal("0.01"))),
+            "expense": str(daily_expense.get(d, Decimal("0.00")).quantize(Decimal("0.01"))),
+        }
+        for d in dates
+    ]

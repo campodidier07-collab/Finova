@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RotateCcw, Search } from 'lucide-react'
+import { Download, RotateCcw, Search } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,8 @@ const TYPE_LABELS: Record<MovementType, { label: string; variant: 'income' | 'ex
   INITIAL: { label: 'Saldo inicial', variant: 'neutral' },
   INCOME: { label: 'Ingreso', variant: 'income' },
   EXPENSE: { label: 'Gasto', variant: 'expense' },
+  TRANSFER_IN: { label: 'Transf. recibida', variant: 'income' },
+  TRANSFER_OUT: { label: 'Transf. enviada', variant: 'expense' },
   ADJUSTMENT: { label: 'Reversión', variant: 'adjustment' },
 }
 
@@ -266,8 +268,50 @@ export function MovementsPage() {
 
       {/* Search & Filters */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">Historial de Auditoría</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!movementsData?.results?.length}
+            onClick={() => {
+              if (!movementsData?.results?.length) return
+              const header = [
+                'Fecha',
+                'Hora',
+                'Tipo',
+                'Categoria',
+                'Descripcion',
+                'Valor',
+                'Saldo Antes',
+                'Saldo Despues',
+              ]
+              const rows = movementsData.results.map((m) => {
+                const dt = formatDateTime(m.occurred_at)
+                return [
+                  dt.date,
+                  dt.time,
+                  TYPE_LABELS[m.type].label,
+                  m.category_name || '',
+                  `"${m.description.replace(/"/g, '""')}"`,
+                  m.amount,
+                  m.balance_before,
+                  m.balance_after,
+                ]
+              })
+              const csv = [header, ...rows].map((r) => r.join(',')).join('\n')
+              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+              const url = URL.createObjectURL(blob)
+              const link = document.createElement('a')
+              link.href = url
+              link.download = `finova-auditoria-pag-${page}.csv`
+              link.click()
+              URL.revokeObjectURL(url)
+            }}
+          >
+            <Download className="h-4 w-4" />
+            Exportar CSV
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -289,6 +333,8 @@ export function MovementsPage() {
               <option value="">Todos los tipos</option>
               <option value="INCOME">Ingresos</option>
               <option value="EXPENSE">Gastos</option>
+              <option value="TRANSFER_IN">Transferencias recibidas</option>
+              <option value="TRANSFER_OUT">Transferencias enviadas</option>
               <option value="INITIAL">Saldo inicial</option>
               <option value="ADJUSTMENT">Reversiones</option>
             </select>
@@ -371,10 +417,12 @@ export function MovementsPage() {
                         </td>
                         <td
                           className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${
-                            m.type === 'EXPENSE' ? 'text-rose-600' : 'text-emerald-600'
+                            m.type === 'EXPENSE' || m.type === 'TRANSFER_OUT'
+                              ? 'text-rose-600'
+                              : 'text-emerald-600'
                           }`}
                         >
-                          {m.type === 'EXPENSE' ? '-' : ''}
+                          {m.type === 'EXPENSE' || m.type === 'TRANSFER_OUT' ? '-' : ''}
                           {formatCurrency(m.amount, m.account_currency)}
                         </td>
                         <td className="px-4 py-3 text-right text-muted-foreground whitespace-nowrap">

@@ -26,7 +26,13 @@ export interface Category {
   is_default: boolean
 }
 
-export type MovementType = 'INITIAL' | 'INCOME' | 'EXPENSE' | 'ADJUSTMENT'
+export type MovementType =
+  | 'INITIAL'
+  | 'INCOME'
+  | 'EXPENSE'
+  | 'TRANSFER_IN'
+  | 'TRANSFER_OUT'
+  | 'ADJUSTMENT'
 
 export interface Movement {
   id: number
@@ -82,4 +88,11 @@ export interface DashboardSummary {
     week: PeriodSummary
     month: PeriodSummary
   }
+}
+
+export interface BalanceTrendPoint {
+  date: string
+  balance: string
+  income: string
+  expense: string
 }

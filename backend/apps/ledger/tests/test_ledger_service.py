@@ -10,6 +10,7 @@ from apps.ledger.services import (
     LedgerError,
     create_account_with_initial_balance,
     record_movement,
+    record_transfer,
     reverse_movement,
 )
 
@@ -138,3 +139,29 @@ class TestLedgerService:
                 amount=Decimal("50.00"),
                 description="Intento no autorizado",
             )
+
+    def test_record_transfer_updates_both_accounts_atomically(self):
+        acc1 = create_account_with_initial_balance(
+            user=self.user, name="Principal", initial_balance=Decimal("1000.00")
+        )
+        acc2 = create_account_with_initial_balance(
+            user=self.user, name="Ahorros", initial_balance=Decimal("200.00")
+        )
+        out_mov, in_mov = record_transfer(
+            user=self.user,
+            from_account_id=acc1.id,
+            to_account_id=acc2.id,
+            amount=Decimal("300.00"),
+            description="Ahorro quincenal",
+        )
+        assert out_mov.type == Movement.MovementType.TRANSFER_OUT
+        assert out_mov.balance_before == Decimal("1000.00")
+        assert out_mov.balance_after == Decimal("700.00")
+        assert in_mov.type == Movement.MovementType.TRANSFER_IN
+        assert in_mov.balance_before == Decimal("200.00")
+        assert in_mov.balance_after == Decimal("500.00")
+
+        acc1.refresh_from_db()
+        acc2.refresh_from_db()
+        assert acc1.balance == Decimal("700.00")
+        assert acc2.balance == Decimal("500.00")

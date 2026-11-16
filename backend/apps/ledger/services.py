@@ -164,3 +164,75 @@ def reverse_movement(*, user, movement_id: int, reason: str = "") -> Movement:
     account.balance = balance_after
     account.save(update_fields=["balance"])
     return reversal
+
+
+@transaction.atomic
+def record_transfer(
+    *,
+    user,
+    from_account_id: int,
+    to_account_id: int,
+    amount: Decimal,
+    description: str = "",
+    occurred_at: datetime | None = None,
+) -> tuple[Movement, Movement]:
+    """Atomically transfer funds between two accounts owned by the user."""
+    if amount <= Decimal("0.00"):
+        raise LedgerError("El monto de la transferencia debe ser mayor a cero.")
+    if from_account_id == to_account_id:
+        raise LedgerError("La cuenta de origen y destino deben ser diferentes.")
+
+    # Lock accounts in deterministic ID order to prevent deadlocks
+    locked_accounts = list(
+        Account.objects.select_for_update()
+        .filter(user=user, id__in=[from_account_id, to_account_id])
+        .order_by("id")
+    )
+    if len(locked_accounts) != 2:
+        raise LedgerError("Una o ambas cuentas no existen o no te pertenecen.")
+
+    accounts_by_id = {acc.id: acc for acc in locked_accounts}
+    source = accounts_by_id[from_account_id]
+    target = accounts_by_id[to_account_id]
+
+    if source.currency != target.currency:
+        raise LedgerError("Solo se permiten transferencias entre cuentas de la misma moneda.")
+
+    source_before = source.balance
+    source_after = source_before - amount
+    if source_after < Decimal("0.00") and not source.allow_overdraft:
+        raise InsufficientFundsError(
+            f"Saldo insuficiente en {source.name}. Disponible: {source_before} {source.currency}."
+        )
+
+    target_before = target.balance
+    target_after = target_before + amount
+    event_time = occurred_at or timezone.now()
+    note = description.strip() or f"Transferencia de {source.name} a {target.name}"
+
+    out_mov = Movement.objects.create(
+        account=source,
+        category=None,
+        type=Movement.MovementType.TRANSFER_OUT,
+        amount=amount,
+        balance_before=source_before,
+        balance_after=source_after,
+        description=f"Hacia {target.name}: {note}"[:255],
+        occurred_at=event_time,
+    )
+    in_mov = Movement.objects.create(
+        account=target,
+        category=None,
+        type=Movement.MovementType.TRANSFER_IN,
+        amount=amount,
+        balance_before=target_before,
+        balance_after=target_after,
+        description=f"Desde {source.name}: {note}"[:255],
+        occurred_at=event_time,
+    )
+
+    source.balance = source_after
+    target.balance = target_after
+    source.save(update_fields=["balance"])
+    target.save(update_fields=["balance"])
+    return out_mov, in_mov

@@ -4,8 +4,8 @@ from rest_framework.response import Response
 
 from .filters import MovementFilter
 from .models import Movement
-from .serializers import MovementSerializer, ReverseMovementSerializer
-from .services import LedgerError, reverse_movement
+from .serializers import MovementSerializer, ReverseMovementSerializer, TransferSerializer
+from .services import LedgerError, record_transfer, reverse_movement
 
 
 class MovementViewSet(
@@ -44,3 +44,27 @@ class MovementViewSet(
 
         out = self.get_serializer(reversal)
         return Response(out.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], url_path="transfer")
+    def transfer(self, request):
+        serializer = TransferSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            out_mov, in_mov = record_transfer(
+                user=request.user,
+                from_account_id=serializer.validated_data["from_account"],
+                to_account_id=serializer.validated_data["to_account"],
+                amount=serializer.validated_data["amount"],
+                description=serializer.validated_data.get("description", ""),
+                occurred_at=serializer.validated_data.get("occurred_at"),
+            )
+        except LedgerError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {
+                "outgoing": self.get_serializer(out_mov).data,
+                "incoming": self.get_serializer(in_mov).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )

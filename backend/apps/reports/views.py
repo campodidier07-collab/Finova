@@ -5,7 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import ReportSnapshot
-from .services import compute_period_report, get_dashboard_summary, get_period_bounds
+from .services import (
+    compute_period_report,
+    get_balance_trend,
+    get_dashboard_summary,
+    get_period_bounds,
+)
 
 
 class DashboardSummaryView(APIView):
@@ -14,6 +19,19 @@ class DashboardSummaryView(APIView):
         parsed_account = int(account_id) if account_id else None
         data = get_dashboard_summary(user=request.user, account_id=parsed_account)
         return Response(data)
+
+
+class BalanceTrendView(APIView):
+    def get(self, request):
+        days_param = request.query_params.get("days", "14")
+        try:
+            days = min(max(int(days_param), 1), 90)
+        except ValueError:
+            days = 14
+        account_id = request.query_params.get("account")
+        parsed_account = int(account_id) if account_id else None
+        data = get_balance_trend(user=request.user, days=days, account_id=parsed_account)
+        return Response({"days": days, "series": data})
 
 
 class PeriodReportView(APIView):

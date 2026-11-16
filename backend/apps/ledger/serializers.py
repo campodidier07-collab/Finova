@@ -74,3 +74,11 @@ class MovementSerializer(serializers.ModelSerializer):
 
 class ReverseMovementSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=120, required=False, allow_blank=True, default="")
+
+
+class TransferSerializer(serializers.Serializer):
+    from_account = serializers.IntegerField()
+    to_account = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2, min_value=Decimal("0.01"))
+    description = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
+    occurred_at = serializers.DateTimeField(required=False, allow_null=True)

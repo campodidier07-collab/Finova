@@ -7,6 +7,8 @@ class Movement(models.Model):
         INITIAL = "INITIAL", "Saldo inicial"
         INCOME = "INCOME", "Ingreso"
         EXPENSE = "EXPENSE", "Gasto"
+        TRANSFER_IN = "TRANSFER_IN", "Transferencia recibida"
+        TRANSFER_OUT = "TRANSFER_OUT", "Transferencia enviada"
         ADJUSTMENT = "ADJUSTMENT", "Ajuste / Reversión"
 
     account = models.ForeignKey(

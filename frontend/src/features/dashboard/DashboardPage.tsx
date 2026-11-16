@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDownRight, ArrowUpRight, Plus, Wallet } from 'lucide-react'
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -16,7 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
-import type { DashboardSummary, Movement, PaginatedResponse } from '@/types/api'
+import type { BalanceTrendPoint, DashboardSummary, Movement, PaginatedResponse } from '@/types/api'
 
 export function DashboardPage() {
   const { data: summary, isLoading: loadingSummary } = useQuery({
@@ -44,6 +46,19 @@ export function DashboardPage() {
         '/movements/?type=EXPENSE&page_size=5'
       )
       return data.results.slice(0, 5)
+    },
+  })
+
+  const { data: trendData } = useQuery({
+    queryKey: ['balance-trend'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ days: number; series: BalanceTrendPoint[] }>(
+        '/reports/balance-trend/?days=14'
+      )
+      return data.series.map((p) => ({
+        fecha: p.date.slice(5),
+        Saldo: Number(p.balance),
+      }))
     },
   })
 
@@ -171,26 +186,58 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      {/* Comparative Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Comparativo de Ingresos vs. Gastos</CardTitle>
-          <CardDescription>Comportamiento financiero del día, la semana y el mes actual</CardDescription>
-        </CardHeader>
-        <CardContent className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="periodo" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Ingresos" fill="#10B981" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Gastos" fill="#F59E0B" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {/* Charts: Balance Trend & Comparative */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Evolución del saldo (14 días)</CardTitle>
+            <CardDescription>Tendencia diaria de tu saldo disponible</CardDescription>
+          </CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData || []}>
+                <defs>
+                  <linearGradient id="finovaBalanceGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="fecha" />
+                <YAxis />
+                <Tooltip />
+                <Area
+                  type="monotone"
+                  dataKey="Saldo"
+                  stroke="#10B981"
+                  strokeWidth={2.5}
+                  fill="url(#finovaBalanceGrad)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Comparativo de Ingresos vs. Gastos</CardTitle>
+            <CardDescription>Comportamiento financiero del día, la semana y el mes actual</CardDescription>
+          </CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="periodo" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Ingresos" fill="#10B981" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="Gastos" fill="#F59E0B" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Recent Incomes & Expenses */}
       <div className="grid gap-4 md:grid-cols-2">
