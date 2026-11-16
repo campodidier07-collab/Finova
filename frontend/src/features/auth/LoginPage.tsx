@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Wallet } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,9 +32,11 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#0F172A]">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Wallet className="h-6 w-6" />
-          </div>
+          <img
+            src="/finova-icon.jpg"
+            alt="Finova"
+            className="mx-auto mb-2 h-12 w-12 rounded-xl object-cover shadow-sm"
+          />
           <CardTitle className="text-2xl">Bienvenido a Finova</CardTitle>
           <CardDescription>Control claro, organizado y auditable de tus finanzas</CardDescription>
         </CardHeader>

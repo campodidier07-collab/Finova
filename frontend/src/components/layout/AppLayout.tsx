@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, History, LayoutDashboard, LogOut, Settings, Wallet } from 'lucide-react'
+import { BarChart3, History, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { OnboardingAccountModal } from '@/features/accounts/OnboardingAccountModal'
@@ -35,9 +35,11 @@ export function AppLayout() {
       <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-800 bg-[#0F172A] text-[#F8FAFC] flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-800">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#10B981] text-white shadow-sm">
-              <Wallet className="h-5 w-5" />
-            </div>
+            <img
+              src="/finova-icon.jpg"
+              alt="Finova"
+              className="h-9 w-9 rounded-lg object-cover shadow-sm"
+            />
             <div>
               <span className="font-bold text-lg tracking-tight text-[#F8FAFC]">Finova</span>
               <p className="text-xs text-[#F59E0B]">Finanzas personales</p>
