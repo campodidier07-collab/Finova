@@ -1,11 +1,9 @@
-import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, History, LayoutDashboard, LogOut, Plus, Settings } from 'lucide-react'
+import { BarChart3, History, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { OnboardingAccountModal } from '@/features/accounts/OnboardingAccountModal'
-import { QuickMovementModal } from '@/features/movements/QuickMovementModal'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Account, PaginatedResponse } from '@/types/api'
@@ -19,7 +17,6 @@ const navItems = [
 
 export function AppLayout() {
   const { user, logout } = useAuth()
-  const [quickModalOpen, setQuickModalOpen] = useState(false)
 
   const { data: accountsData, isLoading: loadingAccounts } = useQuery({
     queryKey: ['accounts'],
@@ -34,7 +31,6 @@ export function AppLayout() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
       {needsOnboarding && <OnboardingAccountModal />}
-      <QuickMovementModal open={quickModalOpen} onClose={() => setQuickModalOpen(false)} />
 
       <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-800 bg-[#0F172A] text-[#F8FAFC] flex flex-col justify-between">
         <div>
@@ -52,14 +48,6 @@ export function AppLayout() {
             </div>
             <div className="flex items-center gap-1 md:hidden">
               <Button
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setQuickModalOpen(true)}
-                aria-label="Registro rápido"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-              <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-slate-300 hover:text-[#F59E0B]"
@@ -69,13 +57,6 @@ export function AppLayout() {
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-
-          <div className="px-3 pt-3 hidden md:block">
-            <Button className="w-full justify-center" onClick={() => setQuickModalOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Registro rápido
-            </Button>
           </div>
 
           <nav className="p-3 flex md:flex-col gap-1 overflow-x-auto">
