@@ -21,8 +21,13 @@ export function LoginPage() {
     try {
       await login(email, password)
       navigate('/')
-    } catch {
-      setError('Correo o contraseña incorrectos.')
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 401 || status === 400) {
+        setError('Correo o contraseña incorrectos.')
+      } else {
+        setError('No se pudo conectar con el servidor backend (http://localhost:8000).')
+      }
     } finally {
       setSubmitting(false)
     }
