@@ -62,9 +62,9 @@ export function AppLayout() {
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
       {needsOnboarding && <OnboardingAccountModal />}
 
-      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-800 bg-[#0F172A] text-[#F8FAFC] flex flex-col justify-between">
+      <aside className="w-full md:w-60 md:sticky md:top-0 md:h-screen md:overflow-y-auto shrink-0 border-b md:border-b-0 md:border-r border-slate-800 bg-[#0F172A] text-[#F8FAFC] flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-800">
             <div className="flex items-center gap-2.5">
               <img
                 src="/finova-icon.jpg"
@@ -89,8 +89,8 @@ export function AppLayout() {
             </div>
           </div>
 
-          <nav className="p-3 space-y-4">
-            <div className="flex md:flex-col gap-1 overflow-x-auto">
+          <nav className="p-2.5 space-y-3">
+            <div className="flex md:flex-col gap-0.5 overflow-x-auto">
               {financeNavItems.map((item) => {
                 const Icon = item.icon
                 return (
@@ -100,7 +100,7 @@ export function AppLayout() {
                     end={item.end}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
+                        'flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
                         isActive
                           ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
                           : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
@@ -115,10 +115,10 @@ export function AppLayout() {
             </div>
 
             <div className="hidden md:block pt-2 border-t border-slate-800/80">
-              <p className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+              <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider uppercase text-slate-400">
                 Sistema
               </p>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 {systemNavItems.map((item) => {
                   const Icon = item.icon
                   return (
@@ -128,7 +128,7 @@ export function AppLayout() {
                       end={item.end}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
+                          'flex items-center justify-between rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
                           isActive
                             ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
                             : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
@@ -152,7 +152,7 @@ export function AppLayout() {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-800 hidden md:block">
+        <div className="p-3.5 border-t border-slate-800 hidden md:block">
           <div className="mb-3">
             <p className="text-sm font-medium truncate text-[#F8FAFC]">{user?.full_name || 'Usuario'}</p>
             <p className="text-xs text-slate-400 truncate">{user?.email}</p>
@@ -169,7 +169,7 @@ export function AppLayout() {
         </div>
       </aside>
 
-      <main className="flex-1 p-4 md:p-8 max-w-[1440px] w-full mx-auto">
+      <main className="flex-1 p-4 md:p-6 max-w-6xl w-full mx-auto">
         <Outlet />
       </main>
     </div>
