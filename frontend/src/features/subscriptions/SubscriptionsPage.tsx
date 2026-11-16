@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pause, Play, Plus, Repeat, Trash2, Zap } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -131,7 +130,7 @@ export function SubscriptionsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Repeat className="h-5 w-5 text-primary" />
+            <i className="fa-solid fa-repeat text-primary" />
             Nueva suscripción
           </CardTitle>
           <CardDescription>Programa servicios recurrentes y regístralos con un clic</CardDescription>
@@ -223,7 +222,7 @@ export function SubscriptionsPage() {
             <div className="sm:col-span-2 lg:col-span-5 flex items-center justify-between">
               {error ? <p className="text-sm text-rose-600">{error}</p> : <span />}
               <Button type="submit" disabled={createMutation.isPending}>
-                <Plus className="h-4 w-4" />
+                <i className="fa-solid fa-plus text-xs" />
                 Agregar suscripción
               </Button>
             </div>
@@ -259,7 +258,7 @@ export function SubscriptionsPage() {
                   disabled={!sub.is_active || chargeMutation.isPending}
                   onClick={() => chargeMutation.mutate(sub.id)}
                 >
-                  <Zap className="h-3.5 w-3.5" />
+                  <i className="fa-solid fa-bolt text-xs" />
                   Registrar cobro
                 </Button>
                 <Button
@@ -268,7 +267,11 @@ export function SubscriptionsPage() {
                   onClick={() => toggleMutation.mutate(sub)}
                   title={sub.is_active ? 'Pausar' : 'Reactivar'}
                 >
-                  {sub.is_active ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                  {sub.is_active ? (
+                    <i className="fa-solid fa-pause text-xs" />
+                  ) : (
+                    <i className="fa-solid fa-play text-xs" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
@@ -276,7 +279,7 @@ export function SubscriptionsPage() {
                   onClick={() => deleteMutation.mutate(sub.id)}
                   title="Eliminar"
                 >
-                  <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+                  <i className="fa-solid fa-trash text-xs text-rose-600" />
                 </Button>
               </div>
             </CardContent>

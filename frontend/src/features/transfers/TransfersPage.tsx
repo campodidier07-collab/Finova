@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftRight } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -89,7 +88,7 @@ export function TransfersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ArrowLeftRight className="h-5 w-5 text-primary" />
+            <i className="fa-solid fa-right-left text-primary" />
             Nueva transferencia
           </CardTitle>
           <CardDescription>

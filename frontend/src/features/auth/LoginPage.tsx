@@ -59,9 +59,6 @@ export function LoginPage() {
               />
               <div>
                 <span className="text-2xl font-bold tracking-tight text-white">Finova</span>
-                <span className="ml-2.5 inline-flex items-center rounded-full bg-[#F59E0B]/15 px-2.5 py-0.5 text-xs font-semibold text-[#F59E0B] ring-1 ring-[#F59E0B]/30">
-                  Finanzas Inteligentes
-                </span>
               </div>
             </div>
 
@@ -173,7 +170,7 @@ export function LoginPage() {
                       id="email"
                       type="email"
                       required
-                      placeholder="ejemplo@correo.com"
+                      placeholder="juangarcia@gmail.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-11 w-full rounded-xl border border-slate-700/80 bg-slate-950/70 pl-10 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 transition-colors"

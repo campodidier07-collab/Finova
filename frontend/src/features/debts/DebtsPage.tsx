@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CheckCircle2, CreditCard, Plus } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { Badge } from '@/components/ui/badge'
@@ -102,7 +101,7 @@ export function DebtsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-[#F59E0B]" />
+            <i className="fa-solid fa-credit-card text-[#F59E0B]" />
             Registrar deuda o préstamo
           </CardTitle>
           <CardDescription>Controla tanto lo que debes como el dinero que te deben</CardDescription>
@@ -193,7 +192,7 @@ export function DebtsPage() {
             <div className="sm:col-span-2 lg:col-span-4 flex items-center justify-between">
               {error ? <p className="text-sm text-rose-600">{error}</p> : <span />}
               <Button type="submit" disabled={createMutation.isPending}>
-                <Plus className="h-4 w-4" />
+                <i className="fa-solid fa-plus text-xs" />
                 Registrar deuda
               </Button>
             </div>
@@ -258,7 +257,7 @@ export function DebtsPage() {
                       disabled={payMutation.isPending}
                       onClick={() => payMutation.mutate({ debtId: debt.id, amount: inputVal })}
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <i className="fa-solid fa-circle-check text-xs" />
                       Abonar cuota
                     </Button>
                   </div>

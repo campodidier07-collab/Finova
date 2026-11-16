@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2 } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { Badge } from '@/components/ui/badge'
@@ -188,7 +187,7 @@ export function SettingsPage() {
                 Permitir saldo negativo (sobregiro)
               </label>
               <Button type="submit" size="sm" disabled={createAccountMutation.isPending}>
-                <Plus className="h-4 w-4" />
+                <i className="fa-solid fa-plus text-xs" />
                 Crear cuenta
               </Button>
             </form>
@@ -285,7 +284,7 @@ export function SettingsPage() {
                 className="w-12 p-1 h-9"
               />
               <Button type="submit" size="sm" className="flex-1" disabled={createCategoryMutation.isPending}>
-                <Plus className="h-4 w-4" />
+                <i className="fa-solid fa-plus text-xs" />
                 Agregar
               </Button>
             </div>
@@ -314,7 +313,7 @@ export function SettingsPage() {
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={() => deleteCategoryMutation.mutate(c.id)}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <i className="fa-solid fa-trash text-xs" />
                   </Button>
                 )}
               </div>

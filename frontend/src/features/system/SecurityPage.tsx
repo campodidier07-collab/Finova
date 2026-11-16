@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { KeyRound, LogOut, ShieldCheck } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -62,7 +61,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5 text-primary" />
+              <i className="fa-solid fa-key text-primary" />
               Cambiar contraseña
             </CardTitle>
             <CardDescription>Usa una contraseña segura de al menos 8 caracteres</CardDescription>
@@ -122,7 +121,7 @@ export function SecurityPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[#10B981]" />
+              <i className="fa-solid fa-shield-halved text-[#10B981]" />
               Estado de la sesión
             </CardTitle>
             <CardDescription>Autenticación activa mediante JWT</CardDescription>
@@ -135,7 +134,7 @@ export function SecurityPage() {
               </p>
             </div>
             <Button variant="destructive" onClick={logout}>
-              <LogOut className="h-4 w-4" />
+              <i className="fa-solid fa-right-from-bracket text-sm" />
               Cerrar sesión en este dispositivo
             </Button>
           </CardContent>

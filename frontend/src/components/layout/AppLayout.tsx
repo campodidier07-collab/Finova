@@ -1,17 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import {
-  ArrowLeftRight,
-  BarChart3,
-  Bell,
-  CreditCard,
-  History,
-  LayoutDashboard,
-  LogOut,
-  Repeat,
-  Settings,
-  Shield,
-} from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
 import { OnboardingAccountModal } from '@/features/accounts/OnboardingAccountModal'
@@ -20,18 +8,18 @@ import { cn } from '@/lib/utils'
 import type { Account, AppNotification, PaginatedResponse } from '@/types/api'
 
 const financeNavItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/movements', label: 'Movimientos y Auditoría', icon: History, end: false },
-  { to: '/transfers', label: 'Transferencias', icon: ArrowLeftRight, end: false },
-  { to: '/subscriptions', label: 'Suscripciones', icon: Repeat, end: false },
-  { to: '/debts', label: 'Deudas', icon: CreditCard, end: false },
-  { to: '/reports', label: 'Reportes', icon: BarChart3, end: false },
+  { to: '/', label: 'Dashboard', icon: 'fa-solid fa-gauge-high', end: true },
+  { to: '/movements', label: 'Movimientos y Auditoría', icon: 'fa-solid fa-clock-rotate-left', end: false },
+  { to: '/transfers', label: 'Transferencias', icon: 'fa-solid fa-right-left', end: false },
+  { to: '/subscriptions', label: 'Suscripciones', icon: 'fa-solid fa-repeat', end: false },
+  { to: '/debts', label: 'Deudas', icon: 'fa-solid fa-credit-card', end: false },
+  { to: '/reports', label: 'Reportes', icon: 'fa-solid fa-chart-pie', end: false },
 ]
 
 const systemNavItems = [
-  { to: '/notifications', label: 'Notificaciones', icon: Bell, end: false },
-  { to: '/security', label: 'Seguridad', icon: Shield, end: false },
-  { to: '/settings', label: 'Configuración', icon: Settings, end: false },
+  { to: '/notifications', label: 'Notificaciones', icon: 'fa-solid fa-bell', end: false },
+  { to: '/security', label: 'Seguridad', icon: 'fa-solid fa-shield-halved', end: false },
+  { to: '/settings', label: 'Configuración', icon: 'fa-solid fa-gear', end: false },
 ]
 
 export function AppLayout() {
@@ -84,34 +72,31 @@ export function AppLayout() {
                 onClick={logout}
                 aria-label="Cerrar sesión"
               >
-                <LogOut className="h-4 w-4" />
+                <i className="fa-solid fa-right-from-bracket text-sm" />
               </Button>
             </div>
           </div>
 
           <nav className="p-2.5 space-y-3">
             <div className="flex md:flex-col gap-0.5 overflow-x-auto">
-              {financeNavItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
-                        isActive
-                          ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
-                          : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
-                      )
-                    }
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                )
-              })}
+              {financeNavItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
+                      isActive
+                        ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
+                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
+                    )
+                  }
+                >
+                  <i className={`${item.icon} w-4 text-center text-sm shrink-0`} />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
             </div>
 
             <div className="hidden md:block pt-2 border-t border-slate-800/80">
@@ -119,34 +104,31 @@ export function AppLayout() {
                 Sistema
               </p>
               <div className="flex flex-col gap-0.5">
-                {systemNavItems.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      className={({ isActive }) =>
-                        cn(
-                          'flex items-center justify-between rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
-                          isActive
-                            ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
-                        )
-                      }
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Icon className="h-4 w-4 shrink-0" />
-                        <span>{item.label}</span>
+                {systemNavItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center justify-between rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
+                        isActive
+                          ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
+                          : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
+                      )
+                    }
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <i className={`${item.icon} w-4 text-center text-sm shrink-0`} />
+                      <span>{item.label}</span>
+                    </span>
+                    {item.to === '/notifications' && unreadCount > 0 && (
+                      <span className="rounded-full bg-[#F59E0B] px-1.5 py-0.5 text-[10px] font-bold text-[#0F172A]">
+                        {unreadCount}
                       </span>
-                      {item.to === '/notifications' && unreadCount > 0 && (
-                        <span className="rounded-full bg-[#F59E0B] px-1.5 py-0.5 text-[10px] font-bold text-[#0F172A]">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </NavLink>
-                  )
-                })}
+                    )}
+                  </NavLink>
+                ))}
               </div>
             </div>
           </nav>
@@ -163,7 +145,7 @@ export function AppLayout() {
             className="w-full justify-start border-slate-700 bg-slate-800/60 text-[#F8FAFC] hover:bg-slate-800 hover:text-[#F59E0B]"
             onClick={logout}
           >
-            <LogOut className="h-4 w-4" />
+            <i className="fa-solid fa-right-from-bracket text-sm" />
             Cerrar sesión
           </Button>
         </div>

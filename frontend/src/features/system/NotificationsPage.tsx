@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bell, Check, CheckCheck, RefreshCw } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,7 +54,7 @@ export function NotificationsPage() {
             onClick={() => syncMutation.mutate()}
             disabled={syncMutation.isPending}
           >
-            <RefreshCw className="h-4 w-4" />
+            <i className="fa-solid fa-arrows-rotate text-xs" />
             Buscar alertas
           </Button>
           <Button
@@ -64,7 +63,7 @@ export function NotificationsPage() {
             onClick={() => readAllMutation.mutate()}
             disabled={readAllMutation.isPending || notifications.length === 0}
           >
-            <CheckCheck className="h-4 w-4" />
+            <i className="fa-solid fa-check-double text-xs" />
             Marcar todo leído
           </Button>
         </div>
@@ -73,7 +72,7 @@ export function NotificationsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="h-4 w-4 text-[#F59E0B]" />
+            <i className="fa-solid fa-bell text-[#F59E0B]" />
             Centro de alertas
           </CardTitle>
           <CardDescription>
@@ -125,7 +124,7 @@ export function NotificationsPage() {
                         onClick={() => readMutation.mutate(n.id)}
                         disabled={readMutation.isPending}
                       >
-                        <Check className="h-4 w-4" />
+                        <i className="fa-solid fa-check text-xs" />
                       </Button>
                     )}
                   </li>

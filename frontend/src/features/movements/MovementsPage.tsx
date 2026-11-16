@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, Paperclip, RotateCcw, Search } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -314,14 +313,14 @@ export function MovementsPage() {
               URL.revokeObjectURL(url)
             }}
           >
-            <Download className="h-4 w-4" />
+            <i className="fa-solid fa-file-excel text-sm" />
             Exportar Excel (.xlsx)
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="relative">
-              <Search className="h-4 w-4 absolute left-3 top-2.5 text-muted-foreground" />
+              <i className="fa-solid fa-magnifying-glass text-xs absolute left-3 top-3 text-muted-foreground" />
               <Input
                 placeholder="Buscar por descripción..."
                 className="pl-9"
@@ -446,7 +445,7 @@ export function MovementsPage() {
                                 title="Ver comprobante adjunto"
                                 className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent text-primary"
                               >
-                                <Paperclip className="h-3.5 w-3.5" />
+                                <i className="fa-solid fa-paperclip text-xs" />
                               </a>
                             )}
                             {canReverse ? (
@@ -457,7 +456,7 @@ export function MovementsPage() {
                                 onClick={() => reverseMutation.mutate(m.id)}
                                 disabled={reverseMutation.isPending}
                               >
-                                <RotateCcw className="h-3.5 w-3.5" />
+                                <i className="fa-solid fa-rotate-left text-xs" />
                               </Button>
                             ) : m.is_reversed ? (
                               <span className="text-xs text-muted-foreground">Revertido</span>

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowDownRight, ArrowUpRight, Plus, Wallet } from 'lucide-react'
 import {
   Area,
   AreaChart,
@@ -95,7 +94,7 @@ export function DashboardPage() {
         </div>
         <Link to="/movements">
           <Button>
-            <Plus className="h-4 w-4" />
+            <i className="fa-solid fa-plus text-xs" />
             Registrar movimiento
           </Button>
         </Link>
@@ -107,7 +106,7 @@ export function DashboardPage() {
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-300 flex items-center justify-between">
               <span>Saldo disponible actual</span>
-              <Wallet className="h-4 w-4 text-[#F59E0B]" />
+              <i className="fa-solid fa-wallet text-[#F59E0B]" />
             </CardDescription>
             <CardTitle className="text-2xl font-bold text-[#10B981]">
               {loadingSummary ? '...' : formatCurrency(summary?.total_balance || '0', currency)}
@@ -244,7 +243,7 @@ export function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-emerald-700">
-              <ArrowUpRight className="h-4 w-4" />
+              <i className="fa-solid fa-arrow-trend-up text-sm" />
               Ingresos recientes
             </CardTitle>
           </CardHeader>
@@ -277,7 +276,7 @@ export function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-rose-700">
-              <ArrowDownRight className="h-4 w-4" />
+              <i className="fa-solid fa-arrow-trend-down text-sm" />
               Gastos recientes
             </CardTitle>
           </CardHeader>

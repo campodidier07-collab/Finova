@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Download } from 'lucide-react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -76,7 +75,7 @@ export function ReportsPage() {
             Mensual
           </Button>
           <Button variant="outline" size="sm" onClick={exportExcel} disabled={!report || exporting}>
-            <Download className="h-4 w-4" />
+            <i className="fa-solid fa-file-excel text-sm" />
             {exporting ? 'Generando...' : 'Exportar Excel (.xlsx)'}
           </Button>
         </div>
