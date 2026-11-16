@@ -88,18 +88,18 @@ export function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
+        <Card className="border-[#0F172A] bg-[#0F172A] text-[#F8FAFC] shadow-md">
           <CardHeader className="pb-2">
-            <CardDescription className="text-emerald-100 flex items-center justify-between">
+            <CardDescription className="text-slate-300 flex items-center justify-between">
               <span>Saldo disponible actual</span>
-              <Wallet className="h-4 w-4 text-emerald-100" />
+              <Wallet className="h-4 w-4 text-[#F59E0B]" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-white">
+            <CardTitle className="text-2xl font-bold text-[#10B981]">
               {loadingSummary ? '...' : formatCurrency(summary?.total_balance || '0', currency)}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-emerald-100">Actualizado automáticamente con cada operación</p>
+            <p className="text-xs text-slate-300">Actualizado automáticamente con cada operación</p>
           </CardContent>
         </Card>
 
@@ -185,8 +185,8 @@ export function DashboardPage() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="Ingresos" fill="#059669" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Gastos" fill="#e11d48" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Ingresos" fill="#10B981" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Gastos" fill="#F59E0B" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

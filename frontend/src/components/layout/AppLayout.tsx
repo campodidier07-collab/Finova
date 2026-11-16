@@ -32,15 +32,15 @@ export function AppLayout() {
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
       {needsOnboarding && <OnboardingAccountModal />}
 
-      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r bg-card flex flex-col justify-between">
+      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-800 bg-[#0F172A] text-[#F8FAFC] flex flex-col justify-between">
         <div>
-          <div className="flex items-center gap-2.5 px-5 py-4 border-b">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-800">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#10B981] text-white shadow-sm">
               <Wallet className="h-5 w-5" />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight">Finova</span>
-              <p className="text-xs text-muted-foreground">Finanzas personales</p>
+              <span className="font-bold text-lg tracking-tight text-[#F8FAFC]">Finova</span>
+              <p className="text-xs text-[#F59E0B]">Finanzas personales</p>
             </div>
           </div>
 
@@ -56,8 +56,8 @@ export function AppLayout() {
                     cn(
                       'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
                       isActive
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                        ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
+                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-[#F8FAFC]'
                     )
                   }
                 >
@@ -69,12 +69,17 @@ export function AppLayout() {
           </nav>
         </div>
 
-        <div className="p-4 border-t hidden md:block">
+        <div className="p-4 border-t border-slate-800 hidden md:block">
           <div className="mb-3">
-            <p className="text-sm font-medium truncate">{user?.full_name || 'Usuario'}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-sm font-medium truncate text-[#F8FAFC]">{user?.full_name || 'Usuario'}</p>
+            <p className="text-xs text-slate-400 truncate">{user?.email}</p>
           </div>
-          <Button variant="outline" size="sm" className="w-full justify-start" onClick={logout}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start border-slate-700 bg-slate-800/60 text-[#F8FAFC] hover:bg-slate-800 hover:text-[#F59E0B]"
+            onClick={logout}
+          >
             <LogOut className="h-4 w-4" />
             Cerrar sesión
           </Button>
