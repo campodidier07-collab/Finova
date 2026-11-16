@@ -187,12 +187,12 @@ export function DashboardPage() {
 
       {/* Charts: Balance Trend & Comparative */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Evolución del saldo (14 días)</CardTitle>
             <CardDescription>Tendencia diaria de tu saldo disponible</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
+          <CardContent className="h-60 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData || []}>
                 <defs>
@@ -217,12 +217,12 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Comparativo de Ingresos vs. Gastos</CardTitle>
             <CardDescription>Comportamiento financiero del día, la semana y el mes actual</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
+          <CardContent className="h-60 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

@@ -31,7 +31,7 @@ export function ReceiptPreviewModal({ movement, onClose }: ReceiptPreviewModalPr
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl overflow-hidden rounded-2xl border bg-card shadow-2xl"
+        className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b bg-[#0F172A] px-5 py-3.5 text-[#F8FAFC]">

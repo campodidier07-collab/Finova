@@ -59,7 +59,7 @@ export function ReportsPage() {
             Análisis automático semanal y mensual de ingresos, gastos y capacidad de ahorro
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={periodType === 'WEEKLY' ? 'default' : 'outline'}
             size="sm"
@@ -138,12 +138,12 @@ export function ReportsPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle>Distribución de gastos por categoría</CardTitle>
                 <CardDescription>Principales rubros donde invertiste tu dinero</CardDescription>
               </CardHeader>
-              <CardContent className="h-72">
+              <CardContent className="h-64 sm:h-72">
                 {pieData.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
                     Sin gastos registrados en este período.

@@ -398,7 +398,86 @@ export function MovementsPage() {
             />
           </div>
 
-          <div className="overflow-x-auto rounded-lg border">
+          {/* Mobile Cards View (< md) */}
+          <div className="md:hidden space-y-3">
+            {isLoading ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Cargando movimientos...
+              </p>
+            ) : !movementsData?.results?.length ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No se encontraron movimientos con los filtros seleccionados.
+              </p>
+            ) : (
+              movementsData.results.map((m) => {
+                const dt = formatDateTime(m.occurred_at)
+                const meta = TYPE_LABELS[m.type]
+                const isOut = m.type === 'EXPENSE' || m.type === 'TRANSFER_OUT'
+                const canReverse =
+                  (m.type === 'INCOME' || m.type === 'EXPENSE') && !m.is_reversed
+
+                return (
+                  <div key={m.id} className="rounded-xl border bg-card p-3.5 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{m.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {dt.date} {dt.time} · {m.category_name || 'Sin categoría'}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-sm font-bold whitespace-nowrap ${
+                          isOut ? 'text-rose-600' : 'text-emerald-600'
+                        }`}
+                      >
+                        {isOut ? '-' : ''}
+                        {formatCurrency(m.amount, m.account_currency)}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t text-xs">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={meta.variant}>{meta.label}</Badge>
+                        <span className="text-muted-foreground">
+                          {formatCurrency(m.balance_before, m.account_currency)} →{' '}
+                          <strong className="text-foreground">
+                            {formatCurrency(m.balance_after, m.account_currency)}
+                          </strong>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {m.receipt && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPreviewMovement(m)}
+                            className="h-7 px-2 text-primary"
+                          >
+                            <i className="fa-solid fa-paperclip text-xs" />
+                          </Button>
+                        )}
+                        {canReverse && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => reverseMutation.mutate(m.id)}
+                            disabled={reverseMutation.isPending}
+                            className="h-7 px-2"
+                          >
+                            <i className="fa-solid fa-rotate-left text-xs" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block overflow-x-auto rounded-lg border">
             <table className="w-full text-sm">
               <thead className="bg-muted/60 text-left text-xs uppercase text-muted-foreground">
                 <tr>

@@ -86,7 +86,10 @@ export function CameraCaptureModal({ open, onClose, onCapture }: CameraCaptureMo
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/75 p-4 backdrop-blur-xs"
       onClick={onClose}
     >
-      <Card className="w-full max-w-lg shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <Card
+        className="w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <CardHeader className="flex flex-row items-start justify-between space-y-0">
           <div>
             <CardTitle className="flex items-center gap-2">
